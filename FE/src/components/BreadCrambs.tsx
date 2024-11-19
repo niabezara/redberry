@@ -5,7 +5,7 @@ function BreadCrambs() {
 
   return (
     <div>
-      <ul className="list-disc ml-6 mt-2">
+      <ul className="list-disc ml-6 mt-2 mb-8">
         {selectedRegions.map((regionId) => (
           <li key={regionId}>{regionId}</li>
         ))}

@@ -11,12 +11,12 @@ import {
 } from "@/components/ui/navigation-menu";
 import { useRegionStore } from "@/store/regionStore";
 import { useQuery } from "react-query";
-import { GeorgianCountries } from "@/types/regions";
+import { RegionsResponse } from "@/types/regions";
 
 export function Region() {
   const { selectedRegions, toggleRegion } = useRegionStore();
-  const { data, isFetching } = useQuery<GeorgianCountries[]>(`regions`);
-
+  const { data, isFetching } = useQuery<RegionsResponse>(`regions`);
+  console.log(data);
   return (
     <NavigationMenu>
       <NavigationMenuList>
@@ -25,7 +25,7 @@ export function Region() {
           <NavigationMenuContent>
             <p className="text-[16px] font-medium">რეგიონის მიხედვით</p>
             <ul className="mt-[24px] grid w-[400px] grid-cols-3">
-              {data?.map((component) => (
+              {data?.data.map((component) => (
                 <ListItem
                   key={component.id}
                   title={component.name}

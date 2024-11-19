@@ -2,8 +2,8 @@
 import { create } from "zustand";
 
 interface RegionStore {
-  selectedRegions: string[];
-  toggleRegion: (regionId: string) => void;
+  selectedRegions: number[];
+  toggleRegion: (regionId: number) => void;
 }
 
 export const useRegionStore = create<RegionStore>((set) => ({

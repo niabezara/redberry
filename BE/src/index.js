@@ -41,6 +41,8 @@ app.use(express.json());
 
 // Routes
 app.use("/api/v1/regions", Routers.regionsRouter);
+app.use("/api/v1/flats", Routers.flatsRouter);
+app.use("/api/v1/agents", Routers.agentsRouter);
 
 // Start server
 app.listen(PORT, () => {
