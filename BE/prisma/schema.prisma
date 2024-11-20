@@ -12,9 +12,19 @@ model Region {
   id         Int    @id @default(autoincrement())
   name       String
   code       String
+  cities     City[]
   deletedAt  DateTime? @db.Timestamp
   flats      Flat[]
 }
+
+model City {
+  id        Int      @id @default(autoincrement())
+  name      String
+  regionId  Int
+  region    Region   @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  flats     Flat[] 
+  deletedAt  DateTime? @db.Timestamp
+  }
 
 model Flat {
   id               Int      @id @default(autoincrement())
@@ -28,6 +38,10 @@ model Flat {
   bedrooms         String
   regionId         Int
   region           Region    @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  agentId          Int    
+  cityId           Int?      // Optional: if flats are associated with specific cities
+  city             City?     @relation(fields: [cityId], references: [id], onDelete: Cascade)   
+  agent            Agent     @relation(fields: [agentId], references: [id], onDelete: Cascade)
   deletedAt        DateTime? @db.Timestamp
 }
 
@@ -48,6 +62,7 @@ model Agent {
   phoneNumber String   
   email       String   @unique
   photo       String? 
+  flats       Flat[] 
 
   createdAt   DateTime @default(now()) 
   updatedAt   DateTime @updatedAt 

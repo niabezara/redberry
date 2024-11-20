@@ -4,6 +4,7 @@ export const getRegions = async (req, res) => {
   try {
     const regions = await prisma.Region.findMany({
       include: {
+        cities: true,
         flats: true,
       },
     });

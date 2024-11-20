@@ -5,6 +5,7 @@ export const getFlats = async (req, res) => {
     const flats = await prisma.flat.findMany({
       include: {
         region: true,
+        agent: true,
         profilePicture: {
           select: {
             id: true,

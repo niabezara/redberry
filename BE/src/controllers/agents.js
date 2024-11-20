@@ -40,26 +40,59 @@ export const getAgent = async (req, res, next) => {
   }
 };
 
+import multer from "multer";
+
+// Set up multer to handle file uploads
+const upload = multer({ dest: "uploads/" });
+
+// Add the middleware to your route
 export const createAgents = async (req, res, next) => {
-  try {
-    const { name, surname, email, phoneNumber, photo } = req.body;
+  upload.single("photo")(req, res, async (err) => {
+    if (err) {
+      return res.status(400).json({ message: "File upload error." });
+    }
 
-    const agent = await prisma.agent.create({
-      data: {
-        name,
-        surname: surname || null,
-        email,
-        phoneNumber,
-        photo,
-      },
-    });
+    try {
+      const { firstName, lastName, email, phoneNumber } = req.body;
+      console.log(req.body); // Log parsed form fields
+      console.log(req.file); // Log uploaded file details (if any)
 
-    return res.status(201).json({ data: agent });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      message: "Error creating agent",
-      error: error.message,
-    });
-  }
+      // Validate required fields
+      if (!firstName || !email || !phoneNumber) {
+        return res.status(400).json({
+          message:
+            "Missing required fields: firstName, email, and phoneNumber are mandatory.",
+        });
+      }
+
+      const agent = await prisma.agent.create({
+        data: {
+          name: firstName,
+          surname: lastName || "",
+          email,
+          phoneNumber,
+          photo: req.file?.filename || null, // Save filename if a photo is uploaded
+        },
+      });
+
+      return res.status(201).json({ data: agent });
+    } catch (error) {
+      console.error(error);
+
+      if (
+        error.code === "P2002" &&
+        error.meta &&
+        error.meta.target.includes("email")
+      ) {
+        return res.status(400).json({
+          message: "Email address already exists.",
+        });
+      }
+
+      return res.status(500).json({
+        message: "Error creating agent",
+        error: error.message,
+      });
+    }
+  });
 };
