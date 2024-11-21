@@ -54,12 +54,6 @@ const AddAgentModal: React.FC<ModalProps> = ({ onClose }) => {
     },
   });
 
-  const files = acceptedFiles.map((file) => (
-    <li key={file.path} className="text-sm text-gray-700">
-      {file.path}
-    </li>
-  ));
-
   const mutation = useMutation({
     mutationFn: async (values: IFormInput) => {
       const formData = new FormData();
@@ -201,16 +195,6 @@ const AddAgentModal: React.FC<ModalProps> = ({ onClose }) => {
                 <input {...getInputProps()} />
                 <Icons.plusButton />
               </div>
-              <aside>
-                {files.length > 0 && (
-                  <div className="mt-2">
-                    <h4 className="font-semibold text-gray-700">
-                      არჩეული ფაილები:
-                    </h4>
-                    <ul>{files}</ul>
-                  </div>
-                )}
-              </aside>
             </section>
           </div>
 

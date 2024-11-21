@@ -1,9 +1,16 @@
 import { useQuery } from "react-query";
 import { Icons } from "./Icons";
 import { FlatResponse } from "@/types/flats";
+import { useNavigate } from "react-router-dom";
 
 function FlatComponent() {
   const { data, isFetching } = useQuery<FlatResponse>(`flats`);
+
+  const navigate = useNavigate();
+
+  const handleFlatClick = (id: string) => {
+    navigate(`/flat/?id=${id}`);
+  };
 
   return (
     <div className="flex flex-wrap  gap-5 cursor-pointer">
@@ -12,6 +19,7 @@ function FlatComponent() {
           <div
             key={flat.id}
             className="border relative border-[#DBDBDB] w-[384px] rounded-2xl"
+            onClick={() => handleFlatClick(flat.id)}
           >
             <span className="absolute top-[15px] left-[15px] bg-[#021526] opacity-50 text-white rounded-2xl p-2">
               {flat.type}
@@ -28,7 +36,7 @@ function FlatComponent() {
                   <Icons.bed /> {flat.bedrooms}
                 </span>
                 <span className="flex gap-1 items-center">
-                  <Icons.space /> 55 მ <sup>2</sup>
+                  <Icons.space /> {flat.area} მ <sup>2</sup>
                 </span>
                 <span className="flex gap-1 items-center">
                   <Icons.postal /> {flat.postalCode}

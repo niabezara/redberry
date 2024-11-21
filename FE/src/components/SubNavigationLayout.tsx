@@ -9,7 +9,8 @@ export default function SubNavigationLayout({
 }) {
   const location = useLocation();
 
-  const showSubNavigation = location.pathname !== "/listing";
+  const showSubNavigation =
+    location.pathname !== "/listing" && !location.pathname.startsWith("/flat/");
 
   return (
     <div className="mt-[77px]">

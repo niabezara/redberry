@@ -16,7 +16,7 @@ import { RegionsResponse } from "@/types/regions";
 export function Region() {
   const { selectedRegions, toggleRegion } = useRegionStore();
   const { data, isFetching } = useQuery<RegionsResponse>(`regions`);
-  console.log(data);
+
   return (
     <NavigationMenu>
       <NavigationMenuList>

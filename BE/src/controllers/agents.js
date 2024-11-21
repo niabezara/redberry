@@ -40,59 +40,39 @@ export const getAgent = async (req, res, next) => {
   }
 };
 
-import multer from "multer";
-
-// Set up multer to handle file uploads
-const upload = multer({ dest: "uploads/" });
-
-// Add the middleware to your route
-export const createAgents = async (req, res, next) => {
-  upload.single("photo")(req, res, async (err) => {
-    if (err) {
-      return res.status(400).json({ message: "File upload error." });
-    }
-
+export const createAgents = async (req, res) => {
+  if (req.file) {
     try {
+      // Explicitly pass cloud name to upload
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        folder: "flats_upload",
+      });
+
       const { firstName, lastName, email, phoneNumber } = req.body;
-      console.log(req.body); // Log parsed form fields
-      console.log(req.file); // Log uploaded file details (if any)
 
-      // Validate required fields
-      if (!firstName || !email || !phoneNumber) {
-        return res.status(400).json({
-          message:
-            "Missing required fields: firstName, email, and phoneNumber are mandatory.",
-        });
-      }
+      // Assign uploaded file URL to photo
+      const photoUrl = result.secure_url;
 
+      // Create agent with the uploaded photo URL
       const agent = await prisma.agent.create({
         data: {
           name: firstName,
-          surname: lastName || "",
-          email,
-          phoneNumber,
-          photo: req.file?.filename || null, // Save filename if a photo is uploaded
+          surname: lastName,
+          email: email,
+          phoneNumber: phoneNumber,
+          photo: photoUrl, // Save Cloudinary URL to photo field
         },
       });
 
       return res.status(201).json({ data: agent });
     } catch (error) {
-      console.error(error);
-
-      if (
-        error.code === "P2002" &&
-        error.meta &&
-        error.meta.target.includes("email")
-      ) {
-        return res.status(400).json({
-          message: "Email address already exists.",
-        });
-      }
-
+      console.error("Error:", error);
       return res.status(500).json({
-        message: "Error creating agent",
-        error: error.message,
+        error: "Error uploading to Cloudinary",
       });
     }
-  });
+  } else {
+    return res.status(400).json({ error: "No file uploaded" });
+  }
 };
