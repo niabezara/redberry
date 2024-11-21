@@ -64,9 +64,9 @@ function FlatDetails() {
               <div className="flex gap-4">
                 <div className="rounded-full w-[72px] h-[72px]">
                   <img
-                    src={flatDetail.agent.photo}
+                    src={flatDetail.agent.photo.path}
                     alt="agent name"
-                    className="w-full"
+                    className="w-full h-full rounded-full"
                   />
                 </div>
                 <article className="flex flex-col">

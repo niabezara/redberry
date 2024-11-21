@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { GLOBAL_ERROR_MESSAGE, validationHelper } from "../utils/index.js";
 import * as agentController from "../controllers/agents.js";
+import upload from "../middleware/mutler.js";
 
 export const agentsRouter = Router();
 
@@ -28,10 +29,14 @@ agentsRouter.get("/:id", (req, res, next) => {
   }
 });
 
-agentsRouter.post("/", async (req, res, next) => {
+agentsRouter.post("/", upload.single("photo"), async (req, res, next) => {
   try {
     validationHelper(req, res);
-
+    if (!req.file) {
+      return res.status(400).json({
+        errors: [{ message: "Photo is required" }],
+      });
+    }
     await agentController.createAgent(req, res, next);
   } catch (error) {
     return res

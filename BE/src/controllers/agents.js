@@ -1,4 +1,5 @@
 import { prisma } from "../index.js";
+import cloudinary from "../utils/cloudinary.js";
 
 export const getAgents = async (req, res, next) => {
   try {
@@ -16,11 +17,12 @@ export const getAgents = async (req, res, next) => {
 
 export const getAgent = async (req, res, next) => {
   try {
-    const { id } = req.params;
-
     const agent = await prisma.agent.findUnique({
       where: {
-        id: Number(id),
+        id: req.params.id,
+      },
+      include: {
+        photo: true,
       },
     });
 
@@ -40,83 +42,54 @@ export const getAgent = async (req, res, next) => {
   }
 };
 
-// export const createAgent = async (req, res) => {
-//   if (req.file) {
-//     try {
-//       // Explicitly pass cloud name to upload
-//       const result = await cloudinary.uploader.upload(req.file.path, {
-//         cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-//         folder: "flats_upload",
-//       });
+export const createAgent = async (req, res) => {
+  try {
+    const { firstName, lastName, email, phoneNumber } = req.body;
+    console.log(req.body);
+    let photoData = null;
 
-//       const {
-//         type,
-//         address,
-//         postalCode,
-//         region,
-//         city,
-//         price,
-//         area,
-//         bedrooms,
-//         description,
-//         agents,
-//       } = req.body;
+    // Handle file upload if a photo is provided
+    if (req.file) {
+      try {
+        const result = await cloudinary.uploader.upload(req.file.path, {
+          cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+          folder: "agents_upload", // Use a dedicated folder for agent photos
+        });
 
-//       let profilePictureData = null;
+        photoData = {
+          path: result.secure_url,
+          name: req.file.originalname,
+          size: req.file.size,
+        };
+      } catch (uploadError) {
+        console.error("Cloudinary Upload Error:", uploadError);
+        return res.status(500).json({
+          error: "Error uploading to Cloudinary",
+          details: uploadError.message,
+        });
+      }
+    }
 
-//       // Handle file upload if a file is provided
-//       if (req.file) {
-//         try {
-//           const result = await cloudinary.uploader.upload(req.file.path, {
-//             folder: "flats_upload",
-//           });
+    const agent = await prisma.agent.create({
+      data: {
+        name: firstName,
+        surname: lastName,
+        phoneNumber,
+        email,
+        ...(photoData && {
+          photo: {
+            create: photoData,
+          },
+        }),
+      },
+    });
 
-//           // Assign uploaded file details to profilePictureData
-//           profilePictureData = {
-//             path: result.secure_url,
-//             name: req.file.originalname,
-//             size: req.file.size,
-//           };
-//         } catch (uploadError) {
-//           console.error("Cloudinary Upload Error:", uploadError);
-//           return res.status(500).json({
-//             error: "Error uploading to Cloudinary",
-//             details: uploadError.message,
-//           });
-//         }
-//       }
-
-//       const flat = await prisma.flat.create({
-//         data: {
-//           type,
-//           streetAddress: address,
-//           postalCode,
-//           price: price ? parseFloat(price) : null,
-//           area,
-//           bedrooms,
-//           description,
-//           agent: {
-//             connect: { id: agents },
-//           },
-//           ...(profilePictureData && {
-//             profilePicture: {
-//               create: profilePictureData,
-//             },
-//           }),
-//           region: {
-//             connect: { id: region },
-//           },
-//           city: {
-//             connect: { id: city },
-//           },
-//         },
-//       });
-//       return res.status(201).json({ data: flat });
-//     } catch (error) {
-//       console.error("Error");
-//       return res.status(500).json({
-//         error: "Error uploading to Cloudinary",
-//       });
-//     }
-//   }
-// };
+    return res.status(201).json({ data: agent });
+  } catch (error) {
+    console.error("Error creating agent:", error);
+    return res.status(500).json({
+      error: "Error creating agent",
+      details: error.message,
+    });
+  }
+};

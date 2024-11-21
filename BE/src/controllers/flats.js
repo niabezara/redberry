@@ -113,7 +113,11 @@ export const getFlat = async (req, res, next) => {
         id: req.params.id,
       },
       include: {
-        agent: true,
+        agent: {
+          include: {
+            photo: true,
+          },
+        },
         profilePicture: true,
         region: true,
       },

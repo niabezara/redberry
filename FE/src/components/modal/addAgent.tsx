@@ -55,21 +55,7 @@ const AddAgentModal: React.FC<ModalProps> = ({ onClose }) => {
   });
 
   const mutation = useMutation({
-    mutationFn: async (values: IFormInput) => {
-      const formData = new FormData();
-      formData.append("firstName", values.firstName);
-      formData.append("lastName", values.lastName);
-      formData.append("email", values.email);
-      formData.append("phoneNumber", values.phoneNumber);
-      if (values.photo) {
-        formData.append("photo", values.photo);
-      }
-
-      // Debugging: Ensure FormData has the required fields
-      for (const [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-      }
-
+    mutationFn: async (formData: FormData) => {
       try {
         const response = await axios.post("/agents", formData, {
           headers: {
@@ -78,22 +64,43 @@ const AddAgentModal: React.FC<ModalProps> = ({ onClose }) => {
         });
         return response.data;
       } catch (error) {
-        console.error("Error during submission:");
+        console.error("Error during submission:", error);
         throw error;
       }
     },
     onSuccess: () => {
-      reset();
       onClose();
+      console.log("Form submitted successfully!");
     },
     onError: (error) => {
-      console.error("Error creating agent:", error);
+      console.error("Error:", error);
     },
   });
 
   const onSubmit: SubmitHandler<IFormInput> = (data) => {
-    console.log("Form Data Submitted:", data); // Debug the form values
-    mutation.mutate(data); // Pass form values to the mutation
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      if (value) {
+        if (key === "photo" && value instanceof File) {
+          formData.append(key, value);
+        } else if (typeof value === "number") {
+          formData.append(key, value.toString());
+        } else {
+          formData.append(key, value);
+        }
+      }
+    });
+
+    // Debugging: Ensure FormData has the required fields
+    for (const [key, value] of formData.entries()) {
+      if (key === "photo" && value instanceof File) {
+        console.log(`${key}:`, value.name, value.size, value.type); // Log file name, size, and type
+      } else {
+        console.log(`${key}: ${value}`);
+      }
+    }
+
+    mutation.mutate(formData);
   };
 
   return (
