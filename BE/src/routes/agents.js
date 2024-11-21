@@ -32,7 +32,7 @@ agentsRouter.post("/", async (req, res, next) => {
   try {
     validationHelper(req, res);
 
-    await agentController.createAgents(req, res, next);
+    await agentController.createAgent(req, res, next);
   } catch (error) {
     return res
       .status(500)

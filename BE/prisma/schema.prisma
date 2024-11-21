@@ -55,7 +55,7 @@ model File {
   deletedAt      DateTime?
   associatedFlat Flat[]  @relation("FlatPicture")
   agentId        String? 
-  agent          Agent?  @relation("AgentPhoto", fields: [agentId], references: [id])
+  agent          Agent[]  @relation("AgentPhoto")
 }
 
 model Agent {
@@ -65,7 +65,7 @@ model Agent {
   phoneNumber String
   email       String   @unique
   photoId     String?  // Optional field to store the file ID for the agent's photo
-  photo        File?    @relation("AgentPhoto", fields: [photoId], references: [id], onDelete: Cascade)
+  photo       File?    @relation("AgentPhoto", fields: [photoId], references: [id], onDelete: Cascade)
   flats       Flat[]   // One-to-many relation with Flat
 
   createdAt   DateTime @default(now())

@@ -40,39 +40,83 @@ export const getAgent = async (req, res, next) => {
   }
 };
 
-export const createAgents = async (req, res) => {
-  if (req.file) {
-    try {
-      // Explicitly pass cloud name to upload
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-        folder: "flats_upload",
-      });
+// export const createAgent = async (req, res) => {
+//   if (req.file) {
+//     try {
+//       // Explicitly pass cloud name to upload
+//       const result = await cloudinary.uploader.upload(req.file.path, {
+//         cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+//         folder: "flats_upload",
+//       });
 
-      const { firstName, lastName, email, phoneNumber } = req.body;
+//       const {
+//         type,
+//         address,
+//         postalCode,
+//         region,
+//         city,
+//         price,
+//         area,
+//         bedrooms,
+//         description,
+//         agents,
+//       } = req.body;
 
-      // Assign uploaded file URL to photo
-      const photoUrl = result.secure_url;
+//       let profilePictureData = null;
 
-      // Create agent with the uploaded photo URL
-      const agent = await prisma.agent.create({
-        data: {
-          name: firstName,
-          surname: lastName,
-          email: email,
-          phoneNumber: phoneNumber,
-          photo: photoUrl, // Save Cloudinary URL to photo field
-        },
-      });
+//       // Handle file upload if a file is provided
+//       if (req.file) {
+//         try {
+//           const result = await cloudinary.uploader.upload(req.file.path, {
+//             folder: "flats_upload",
+//           });
 
-      return res.status(201).json({ data: agent });
-    } catch (error) {
-      console.error("Error:", error);
-      return res.status(500).json({
-        error: "Error uploading to Cloudinary",
-      });
-    }
-  } else {
-    return res.status(400).json({ error: "No file uploaded" });
-  }
-};
+//           // Assign uploaded file details to profilePictureData
+//           profilePictureData = {
+//             path: result.secure_url,
+//             name: req.file.originalname,
+//             size: req.file.size,
+//           };
+//         } catch (uploadError) {
+//           console.error("Cloudinary Upload Error:", uploadError);
+//           return res.status(500).json({
+//             error: "Error uploading to Cloudinary",
+//             details: uploadError.message,
+//           });
+//         }
+//       }
+
+//       const flat = await prisma.flat.create({
+//         data: {
+//           type,
+//           streetAddress: address,
+//           postalCode,
+//           price: price ? parseFloat(price) : null,
+//           area,
+//           bedrooms,
+//           description,
+//           agent: {
+//             connect: { id: agents },
+//           },
+//           ...(profilePictureData && {
+//             profilePicture: {
+//               create: profilePictureData,
+//             },
+//           }),
+//           region: {
+//             connect: { id: region },
+//           },
+//           city: {
+//             connect: { id: city },
+//           },
+//         },
+//       });
+//       return res.status(201).json({ data: flat });
+//     } catch (error) {
+//       console.error("Error");
+//       return res.status(500).json({
+//         error: "Error uploading to Cloudinary",
+//       });
+//     }
+//   }
+// };
