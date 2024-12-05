@@ -1,6 +1,6 @@
 import axios from "@/api/axios";
-import { useQuery } from "react-query";
-import { useLocation } from "react-router-dom";
+import { useMutation, useQuery } from "react-query";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Icons } from "./Icons";
 import { PropertyInfo } from "./PropertyInfo";
 import dayjs from "dayjs";
@@ -9,6 +9,7 @@ function FlatDetails() {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const id = queryParams.get("id");
+  const navigate = useNavigate();
 
   const { data: flatDetail } = useQuery(
     [`flats-${id}`],
@@ -18,6 +19,24 @@ function FlatDetails() {
     },
     { enabled: !!id }
   );
+
+  const { mutateAsync: deleteFlat } = useMutation({
+    mutationFn: async (id: string) => {
+      await axios.delete(`/flats/${id}`);
+    },
+    onSuccess: () => {
+      console.info("Flat deleted successfully");
+      navigate("/");
+    },
+    onError: (error) => {
+      console.error("Error deleting flat:", error);
+    },
+  });
+
+  const handleDelete = async () => {
+    if (!id) return;
+    await deleteFlat(id);
+  };
 
   return (
     <div className="mb-[64px]">
@@ -83,7 +102,10 @@ function FlatDetails() {
                 {flatDetail.agent.phoneNumber}
               </span>
             </div>
-            <button className="border border-[#676E76] mt-5 rounded-2xl p-3 text-[#676E76] text-xs">
+            <button
+              className="border border-[#676E76] mt-5 rounded-2xl p-3 text-[#676E76] text-xs"
+              onClick={handleDelete}
+            >
               ლისტინგის წაშლა
             </button>
           </div>

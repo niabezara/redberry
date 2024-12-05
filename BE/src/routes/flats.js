@@ -35,3 +35,15 @@ flatsRouter.get("/:id", (req, res, next) => {
       .json({ errors: [{ message: GLOBAL_ERROR_MESSAGE }] });
   }
 });
+
+flatsRouter.delete("/:id", (req, res, next) => {
+  try {
+    validationHelper(req, res);
+
+    flatController.deleteFlat(req, res, next);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ errors: [{ message: GLOBAL_ERROR_MESSAGE }] });
+  }
+});

@@ -128,3 +128,21 @@ export const getFlat = async (req, res, next) => {
     return next(error);
   }
 };
+
+export const deleteFlat = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log("Received ID for deletion:", id);
+    const deletedFlat = await prisma.flat.delete({
+      where: {
+        id: id,
+      },
+    });
+    res
+      .status(200)
+      .json({ message: "Flat deleted successfully", data: deletedFlat });
+  } catch (error) {
+    console.error("Error deleting flat:", error.message);
+    res.status(500).json({ error: error.message || "Something went wrong" });
+  }
+};
