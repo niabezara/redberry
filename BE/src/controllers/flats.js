@@ -146,3 +146,34 @@ export const deleteFlat = async (req, res) => {
     res.status(500).json({ error: error.message || "Something went wrong" });
   }
 };
+
+export const filterFlatsByRegions = async (req, res, next) => {
+  try {
+    const { regionNames } = req.body;
+
+    if (!Array.isArray(regionNames) || regionNames.length === 0) {
+      return res
+        .status(400)
+        .json({ errors: [{ message: "Invalid regionNames" }] });
+    }
+
+    const filteredFlats = await prisma.Flat.findMany({
+      where: {
+        region: {
+          name: { in: regionNames },
+        },
+      },
+      include: {
+        profilePicture: true,
+        region: true,
+      },
+    });
+
+    return res.json({ data: filteredFlats });
+  } catch (error) {
+    console.error("Error filtering flats:", error);
+    return res
+      .status(500)
+      .json({ errors: [{ message: "Internal server error" }] });
+  }
+};

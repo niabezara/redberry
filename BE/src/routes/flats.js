@@ -47,3 +47,17 @@ flatsRouter.delete("/:id", (req, res, next) => {
       .json({ errors: [{ message: GLOBAL_ERROR_MESSAGE }] });
   }
 });
+
+flatsRouter.post("/filter", async (req, res, next) => {
+  try {
+    validationHelper(req, res);
+
+    // Call the filter function in the controller
+    await flatController.filterFlatsByRegions(req, res, next);
+  } catch (error) {
+    console.error("Error filtering flats by regions:", error);
+    return res
+      .status(500)
+      .json({ errors: [{ message: GLOBAL_ERROR_MESSAGE }] });
+  }
+});

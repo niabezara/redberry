@@ -10,12 +10,52 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { useRegionStore } from "@/store/regionStore";
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { RegionsResponse } from "@/types/regions";
+import axios from "@/api/axios";
+import { useNavigate } from "react-router";
 
 export function Region() {
   const { selectedRegions, toggleRegion } = useRegionStore();
-  const { data, isFetching } = useQuery<RegionsResponse>(`regions`);
+  const navigate = useNavigate();
+
+  const mutation = useMutation({
+    mutationFn: async (regionNames: string[]) => {
+      const response = await axios.post("/regions/filter", {
+        regionNames: regionNames.length > 0 ? regionNames : null, // Send region names to backend
+      });
+      if (response.status !== 200) {
+        throw new Error("Failed to filter regions");
+      }
+      return response.data;
+    },
+    onSuccess: (data) => {
+      console.log("Successfully filtered regions", data);
+    },
+    onError: (error: Error) => {
+      console.error("Error filtering regions:", error.message);
+    },
+  });
+
+  const { data } = useQuery<RegionsResponse>(`regions`);
+
+  const handleChoose = () => {
+    const selectedRegionNames = data?.data
+      .filter((region) => selectedRegions.includes(region.id))
+      .map((region) => region.name);
+
+    if (!selectedRegionNames || selectedRegionNames.length === 0) {
+      console.log("No regions selected");
+      return;
+    }
+
+    mutation.mutate(selectedRegionNames);
+
+    navigate({
+      pathname: window.location.pathname,
+      search: `?regions=${selectedRegionNames.join(",")}`,
+    });
+  };
 
   return (
     <NavigationMenu>
@@ -43,7 +83,10 @@ export function Region() {
               ))}
             </ul>
             <div className="flex justify-end mt-4">
-              <button className="bg-[#F93B1D] text-white text-[16px] py-[8px] px-[14px] rounded-xl ">
+              <button
+                className="bg-[#F93B1D] text-white text-[16px] py-[8px] px-[14px] rounded-xl "
+                onClick={handleChoose}
+              >
                 არჩევა
               </button>
             </div>
