@@ -11,7 +11,7 @@ function SubNavigation() {
   const { isModalOpen, openModal, closeModal } = useModalStore();
   return (
     <div className="flex justify-between w-full max-w-[1596px] px-[162px]">
-      <div className="flex p-[6px] rounded-xl border border-[#DBDBDB]">
+      <div className="flex p-[6px] rounded-xl border border-[#DBDBDB] items-center gap-3">
         <Region />
         <Price />
         <Space />

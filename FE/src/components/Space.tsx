@@ -14,6 +14,8 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { Icons } from "./Icons";
+import { useVisibilityStore } from "@/store/visibilityStore";
+import useOnClickOutside from "@/hooks/use-click-outside";
 
 const priceRange: { title: string }[] = [
   {
@@ -34,89 +36,60 @@ const priceRange: { title: string }[] = [
 ];
 
 export function Space() {
-  return (
-    <NavigationMenu>
-      <NavigationMenuList>
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>ფართობი</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <p className="text-[16px] font-medium">ფართობის მიხედვით</p>
-            <div className="flex mt-6 gap-[15px] mb-6">
-              <div className="relative w-full">
-                <input
-                  type="number"
-                  id="min-price"
-                  className="w-full rounded-md border border-[#808A93] px-[10px] py-[12px] text-sm pr-8"
-                  placeholder="დან"
-                />
-                <Icons.m2 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#808A93]" />
-              </div>
+  const { visibleSection, openSection } = useVisibilityStore(); // Access the store
+  const isVisible = visibleSection === "space";
+  const ref = React.useRef<HTMLDivElement>(null);
+  const handleToggleVisibility = () => {
+    openSection("space");
+  };
 
-              <div className="relative w-full">
-                <input
-                  type="number"
-                  id="max-price"
-                  className="w-full rounded-md border border-[#808A93] px-[10px] py-[12px] text-sm pr-8"
-                  placeholder="დან"
-                />
-                <Icons.m2 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#808A93]" />
-              </div>
+  const handleClose = () => {
+    openSection(""); // Close the current section
+  };
+
+  useOnClickOutside(ref, handleClose);
+  return (
+    <div className="relative">
+      <div
+        onClick={handleToggleVisibility}
+        className={cn(
+          "hover:bg-gray-100 flex items-center gap-1 p-1 rounded-md"
+        )}
+      >
+        <h1 className="cursor-pointer font-semibold">ფართობი</h1>
+        <Icons.arrow
+          className={`transform transition-transform duration-300 ${
+            isVisible ? "rotate-180" : ""
+          }`}
+        />
+      </div>
+      {isVisible && (
+        <div
+          ref={ref}
+          className="absolute top-10 left-0 bg-white border border-gray-200 p-4 rounded-lg shadow-lg z-10 w-[400px]"
+        >
+          <p className="text-[16px] font-medium">ფართობის მიხედვით</p>
+          <div className="flex mt-6 gap-[15px] mb-6">
+            {/* Price Inputs */}
+            <div className="relative w-full">
+              <input
+                type="number"
+                className="w-full rounded-md border border-[#808A93] px-[10px] py-[12px] text-sm pr-8"
+                placeholder="დან"
+              />
+              <Icons.m2 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#808A93]" />
             </div>
-            <div className="flex">
-              <div className="flex flex-col">
-                <p className="flex text-sm font-medium mb-4">მინ. მ&sup2;</p>
-                <ul className="w-[155px] ">
-                  {priceRange.map((price) => (
-                    <ListItem key={price.title} title={price.title}></ListItem>
-                  ))}
-                </ul>
-              </div>
-              <div className="flex flex-col">
-                <p className="flex text-sm font-medium mb-4">მაქს. მ&sup2;</p>
-                <ul className="w-[155px]">
-                  {priceRange.map((price) => (
-                    <ListItem key={price.title} title={price.title}></ListItem>
-                  ))}
-                </ul>
-              </div>
+            <div className="relative w-full">
+              <input
+                type="number"
+                className="w-full rounded-md border border-[#808A93] px-[10px] py-[12px] text-sm pr-8"
+                placeholder="მდე"
+              />
+              <Icons.m2 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#808A93]" />
             </div>
-            <div className="flex justify-end mt-4">
-              <button className="bg-[#F93B1D] text-white text-[16px] py-[8px] px-[14px] rounded-xl ">
-                არჩევა
-              </button>
-            </div>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
-      </NavigationMenuList>
-    </NavigationMenu>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
-
-const ListItem = React.forwardRef<
-  React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a">
->(({ className, title, children, ...props }, ref) => {
-  return (
-    <li className="flex">
-      <NavigationMenuLink asChild>
-        <a
-          ref={ref}
-          className={cn(
-            "flex flex-row-reverse items-center gap-1 self-start justify-start select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-            className
-          )}
-          {...props}
-        >
-          <div className="flex items-center gap-1 text-[16px] self-start font-normal leading-none">
-            {title}
-            <Icons.m2 />
-          </div>
-          <p className="line-clamp-2 text-start items-start text-sm leading-snug text-muted-foreground">
-            {children}
-          </p>
-        </a>
-      </NavigationMenuLink>
-    </li>
-  );
-});
-ListItem.displayName = "ListItem";

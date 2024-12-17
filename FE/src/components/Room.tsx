@@ -1,70 +1,60 @@
-"use client";
-
-import * as React from "react";
-// import Link from "next/link";
-
+import useOnClickOutside from "@/hooks/use-click-outside";
+import { useVisibilityStore } from "@/store/visibilityStore";
+import { useRef } from "react";
+import { Icons } from "./Icons";
 import { cn } from "@/lib/utils";
 
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
-
 export function Room() {
-  return (
-    <NavigationMenu>
-      <NavigationMenuList>
-        <NavigationMenuItem>
-          <NavigationMenuTrigger>ოთახების რაოდენობა</NavigationMenuTrigger>
-          <NavigationMenuContent>
-            <p className="text-[16px] font-medium truncate ">
-              საძინებლების რაოდენობა
-            </p>
-            <input
-              type="number"
-              id=""
-              className="w-[41px] h-[41px] mt-[24px] rounded-md border border-[#808A93] text-sm text-center"
-              placeholder="2"
-            />
+  const { visibleSection, openSection } = useVisibilityStore(); // Access the store
+  const isVisible = visibleSection === "room";
+  const ref = useRef<HTMLDivElement>(null);
+  const handleToggleVisibility = () => {
+    openSection("room");
+  };
 
-            <div className="flex justify-end mt-4">
-              <button className="bg-[#F93B1D] text-white text-[16px] py-[8px] px-[14px] rounded-xl ">
-                არჩევა
-              </button>
-            </div>
-          </NavigationMenuContent>
-        </NavigationMenuItem>
-      </NavigationMenuList>
-    </NavigationMenu>
+  const handleClose = () => {
+    openSection(""); // Close the current section
+  };
+
+  useOnClickOutside(ref, handleClose);
+
+  return (
+    <div className="relative">
+      <div
+        onClick={handleToggleVisibility}
+        className={cn(
+          "hover:bg-gray-100 flex items-center gap-1 p-1 rounded-md"
+        )}
+      >
+        <h1 className="cursor-pointer font-semibold">ოთახების რაოდენობა</h1>
+        <Icons.arrow
+          className={`transform transition-transform duration-300 ${
+            isVisible ? "rotate-180" : ""
+          }`}
+        />
+      </div>
+      {isVisible && (
+        <div
+          ref={ref}
+          className="absolute top-10 left-0 bg-white border border-gray-200 p-4 rounded-lg shadow-lg z-10 w-[300px]"
+        >
+          <p className="text-[16px] font-medium truncate ">
+            საძინებლების რაოდენობა
+          </p>
+          <input
+            type="number"
+            id=""
+            className="w-[41px] h-[41px] mt-[24px] rounded-md border border-[#808A93] text-sm text-center"
+            placeholder="2"
+          />
+
+          <div className="flex justify-end mt-4">
+            <button className="bg-[#F93B1D] text-white text-[16px] py-[8px] px-[14px] rounded-xl ">
+              არჩევა
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
-
-const ListItem = React.forwardRef<
-  React.ElementRef<"a">,
-  React.ComponentPropsWithoutRef<"a">
->(({ className, title, children, ...props }, ref) => {
-  return (
-    <li className="flex">
-      <NavigationMenuLink asChild>
-        <a
-          ref={ref}
-          className={cn(
-            "flex flex-row-reverse items-center gap-2 self-start justify-start select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-            className
-          )}
-          {...props}
-        >
-          <div className="text-sm font-medium leading-none">{title}</div>
-          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-            {children}
-          </p>
-        </a>
-      </NavigationMenuLink>
-    </li>
-  );
-});
-ListItem.displayName = "ListItem";
