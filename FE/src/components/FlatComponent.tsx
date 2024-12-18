@@ -6,10 +6,12 @@ import { useRegionStore } from "@/store/regionStore";
 import axios from "@/api/axios";
 import { usePriceStore } from "@/store/priceStore";
 import { useSpaceStore } from "@/store/spaceStpre";
+import { useRoomStore } from "@/store/roomStore";
 
 function FlatComponent() {
   const { selectedRegions } = useRegionStore();
   const { priceFrom, priceTo } = usePriceStore();
+  const { room } = useRoomStore();
   const { From, To } = useSpaceStore();
   const navigate = useNavigate();
 
@@ -34,6 +36,7 @@ function FlatComponent() {
           priceTo: priceTo || null,
           From: From || null,
           To: To || null,
+          room: room || null,
         });
 
         if (response.status !== 200) {
@@ -53,7 +56,7 @@ function FlatComponent() {
     },
     {
       enabled:
-        selectedRegions.length > 0 || priceFrom || priceTo || From || To
+        selectedRegions.length > 0 || priceFrom || priceTo || From || To || room
           ? true
           : false,
     }
@@ -67,7 +70,7 @@ function FlatComponent() {
   };
 
   const flatsToDisplay =
-    selectedRegions.length > 0 || priceFrom || priceTo || From || To
+    selectedRegions.length > 0 || priceFrom || priceTo || From || To || room
       ? filteredFlatsData?.data
       : allFlatsData?.data;
 

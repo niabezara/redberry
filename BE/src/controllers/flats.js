@@ -149,7 +149,7 @@ export const deleteFlat = async (req, res) => {
 
 export const filterFlatsByRegions = async (req, res, next) => {
   try {
-    const { regionIds, priceFrom, priceTo, From, To } = req.body;
+    const { regionIds, priceFrom, priceTo, From, To, room } = req.body;
 
     // if (!Array.isArray(regionIds) || regionIds.length === 0) {
     //   return res
@@ -198,7 +198,7 @@ export const filterFlatsByRegions = async (req, res, next) => {
               lte: To.toString(),
             },
           }),
-
+        bedrooms: room,
         deletedAt: null,
       },
       include: {

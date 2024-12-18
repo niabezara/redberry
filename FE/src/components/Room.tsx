@@ -3,20 +3,33 @@ import { useVisibilityStore } from "@/store/visibilityStore";
 import { useRef } from "react";
 import { Icons } from "./Icons";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router";
+import { useRoomStore } from "@/store/roomStore";
 
 export function Room() {
   const { visibleSection, openSection } = useVisibilityStore(); // Access the store
+  const { room, setRoom } = useRoomStore();
   const isVisible = visibleSection === "room";
+  const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
   const handleToggleVisibility = () => {
     openSection("room");
   };
 
-  const handleClose = () => {
-    openSection(""); // Close the current section
-  };
-
+  const handleClose = () => openSection("");
   useOnClickOutside(ref, handleClose);
+
+  const handleFilterByRoom = () => {
+    const params = new URLSearchParams(location.search);
+    if (room) {
+      params.set("room", room.toString());
+    } else {
+      params.delete("room");
+    }
+
+    navigate({ pathname: location.pathname, search: params.toString() });
+    openSection("");
+  };
 
   return (
     <div className="relative">
@@ -46,10 +59,14 @@ export function Room() {
             id=""
             className="w-[41px] h-[41px] mt-[24px] rounded-md border border-[#808A93] text-sm text-center"
             placeholder="2"
+            onChange={(e) => setRoom(e.target.value || "")}
           />
 
           <div className="flex justify-end mt-4">
-            <button className="bg-[#F93B1D] text-white text-[16px] py-[8px] px-[14px] rounded-xl ">
+            <button
+              className="bg-[#F93B1D] text-white text-[16px] py-[8px] px-[14px] rounded-xl "
+              onClick={handleFilterByRoom}
+            >
               არჩევა
             </button>
           </div>
