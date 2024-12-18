@@ -5,10 +5,12 @@ import { useNavigate } from "react-router";
 import { useRegionStore } from "@/store/regionStore";
 import axios from "@/api/axios";
 import { usePriceStore } from "@/store/priceStore";
+import { useSpaceStore } from "@/store/spaceStpre";
 
 function FlatComponent() {
   const { selectedRegions } = useRegionStore();
   const { priceFrom, priceTo } = usePriceStore();
+  const { From, To } = useSpaceStore();
   const navigate = useNavigate();
 
   // Fetch all flats
@@ -23,13 +25,15 @@ function FlatComponent() {
 
   // Fetch filtered flats based on selected regions
   const { data: filteredFlatsData, error } = useQuery<FlatResponse>(
-    ["flats", selectedRegions, priceFrom, priceTo],
+    ["flats", selectedRegions, priceFrom, priceTo, From, To],
     async () => {
       try {
         const response = await axios.post("/flats/filter", {
           regionIds: selectedRegions.length > 0 ? selectedRegions : null,
           priceFrom: priceFrom || null,
           priceTo: priceTo || null,
+          From: From || null,
+          To: To || null,
         });
 
         if (response.status !== 200) {
@@ -49,7 +53,9 @@ function FlatComponent() {
     },
     {
       enabled:
-        selectedRegions.length > 0 || priceFrom || priceTo ? true : false,
+        selectedRegions.length > 0 || priceFrom || priceTo || From || To
+          ? true
+          : false,
     }
   );
 
@@ -61,7 +67,7 @@ function FlatComponent() {
   };
 
   const flatsToDisplay =
-    selectedRegions.length > 0 || priceFrom || priceTo
+    selectedRegions.length > 0 || priceFrom || priceTo || From || To
       ? filteredFlatsData?.data
       : allFlatsData?.data;
 

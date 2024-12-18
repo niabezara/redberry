@@ -9,66 +9,66 @@ datasource db {
 }
 
 model Region {
-  id         String   @id @default(uuid())
-  name       String
-  code       String
-  cities     City[]   // One-to-many relation with City
-  flats      Flat[]   // One-to-many relation with Flat
-  deletedAt  DateTime? @db.Timestamp
+  id        String    @id @default(uuid())
+  name      String
+  code      String
+  cities    City[] // One-to-many relation with City
+  flats     Flat[] // One-to-many relation with Flat
+  deletedAt DateTime? @db.Timestamp
 }
 
 model City {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   name      String
   regionId  String
-  region    Region   @relation(fields: [regionId], references: [id], onDelete: Cascade)
-  flats     Flat[]   // One-to-many relation with Flat
+  region    Region    @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  flats     Flat[] // One-to-many relation with Flat
   deletedAt DateTime? @db.Timestamp
 }
 
 model Flat {
-  id               String   @id @default(uuid())
+  id               String    @id @default(uuid())
   price            Float?
   postalCode       String
-  profilePictureId String?  // Removed @unique to prevent issues
-  profilePicture   File?    @relation("FlatPicture", fields: [profilePictureId], references: [id], onDelete: Cascade)
+  profilePictureId String? // Removed @unique to prevent issues
+  profilePicture   File?     @relation("FlatPicture", fields: [profilePictureId], references: [id], onDelete: Cascade)
   type             String
   streetAddress    String
   area             String
   bedrooms         String
   description      String
   regionId         String
-  region           Region   @relation(fields: [regionId], references: [id], onDelete: Cascade)
+  region           Region    @relation(fields: [regionId], references: [id], onDelete: Cascade)
   agentId          String
-  cityId           String?  // Optional: if flats are associated with specific cities
-  city             City?    @relation(fields: [cityId], references: [id], onDelete: Cascade)
-  agent            Agent    @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  cityId           String? // Optional: if flats are associated with specific cities
+  city             City?     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+  agent            Agent     @relation(fields: [agentId], references: [id], onDelete: Cascade)
   deletedAt        DateTime? @db.Timestamp
   createdAt        DateTime  @default(now())
 }
 
 model File {
-  id             String  @id @default(uuid())
+  id             String    @id @default(uuid())
   name           String
   path           String
   size           Int
   deletedAt      DateTime?
-  associatedFlat Flat[]  @relation("FlatPicture")
-  agentId        String? 
-  agent          Agent[]  @relation("AgentPhoto")
+  associatedFlat Flat[]    @relation("FlatPicture")
+  agentId        String?
+  agent          Agent[]   @relation("AgentPhoto")
 }
 
 model Agent {
-  id          String   @id @default(uuid())
+  id          String  @id @default(uuid())
   name        String
   surname     String
   phoneNumber String
-  email       String   @unique
-  photoId     String?  // Optional field to store the file ID for the agent's photo
-  photo       File?    @relation("AgentPhoto", fields: [photoId], references: [id], onDelete: Cascade)
-  flats       Flat[]   // One-to-many relation with Flat
+  email       String  @unique
+  photoId     String? // Optional field to store the file ID for the agent's photo
+  photo       File?   @relation("AgentPhoto", fields: [photoId], references: [id], onDelete: Cascade)
+  flats       Flat[] // One-to-many relation with Flat
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  deletedAt   DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 }

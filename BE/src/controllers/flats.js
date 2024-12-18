@@ -149,7 +149,7 @@ export const deleteFlat = async (req, res) => {
 
 export const filterFlatsByRegions = async (req, res, next) => {
   try {
-    const { regionIds, priceFrom, priceTo } = req.body;
+    const { regionIds, priceFrom, priceTo, From, To } = req.body;
 
     // if (!Array.isArray(regionIds) || regionIds.length === 0) {
     //   return res
@@ -167,6 +167,16 @@ export const filterFlatsByRegions = async (req, res, next) => {
       }
     }
 
+    const SpaceFilter = {};
+    if (From || To) {
+      if (From) {
+        SpaceFilter.gte = From;
+      }
+      if (To) {
+        SpaceFilter.lte = To;
+      }
+    }
+
     const flats = await prisma.flat.findMany({
       where: {
         ...(regionIds?.length > 0 && {
@@ -181,6 +191,14 @@ export const filterFlatsByRegions = async (req, res, next) => {
               lte: parseFloat(priceTo),
             },
           }),
+        ...(From &&
+          To && {
+            area: {
+              gte: From.toString(),
+              lte: To.toString(),
+            },
+          }),
+
         deletedAt: null,
       },
       include: {
