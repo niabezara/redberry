@@ -10,5 +10,5 @@ function About() {
 
 export const aboutRoute = {
   element: <About />,
-  path: "/flat",
+  path: "/flats",
 };

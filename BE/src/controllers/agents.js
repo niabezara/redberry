@@ -45,7 +45,6 @@ export const getAgent = async (req, res, next) => {
 export const createAgent = async (req, res) => {
   try {
     const { firstName, lastName, email, phoneNumber } = req.body;
-    console.log(req.body);
     let photoData = null;
 
     // Handle file upload if a photo is provided

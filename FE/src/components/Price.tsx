@@ -1,21 +1,43 @@
+import { useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import useOnClickOutside from "@/hooks/use-click-outside";
 import { Icons } from "./Icons";
 import { useVisibilityStore } from "@/store/visibilityStore";
-import { useRef } from "react";
 import { cn } from "@/lib/utils";
+import { usePriceStore } from "@/store/priceStore";
 
-const priceRange: { title: string }[] = [
-  { title: "10,000" },
-  { title: "20,000" },
-  { title: "30,000" },
-  { title: "40,000" },
-  { title: "50,000" },
+const staticPrices = [
+  {
+    title: "50,000",
+    value: 50000,
+  },
+  {
+    title: "100,000",
+    value: 100000,
+  },
+  {
+    title: "150,000",
+    value: 150000,
+  },
+  {
+    title: "200,000",
+    value: 200000,
+  },
+  {
+    title: "300,000",
+    value: 300000,
+  },
 ];
 
 export function Price() {
-  const { visibleSection, openSection } = useVisibilityStore(); // Access the store
+  const { visibleSection, openSection } = useVisibilityStore();
   const isVisible = visibleSection === "price";
   const ref = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const { priceFrom, priceTo, setPriceFrom, setPriceTo } = usePriceStore();
+
   const handleToggleVisibility = () => {
     openSection("price");
   };
@@ -26,6 +48,35 @@ export function Price() {
 
   useOnClickOutside(ref, handleClose);
 
+  // Update query params
+  const handleFilterByPrice = () => {
+    const params = new URLSearchParams(location.search);
+
+    // Add price range to the query
+    if (priceFrom) {
+      params.set("priceFrom", priceFrom.toString());
+    } else {
+      params.delete("priceFrom");
+    }
+
+    if (priceTo) {
+      params.set("priceTo", priceTo.toString());
+    } else {
+      params.delete("priceTo");
+    }
+
+    navigate({ pathname: location.pathname, search: params.toString() });
+    openSection("");
+  };
+
+  // Handle selecting a price range from static prices
+  const handleSelectPrice = (price: number, type: string) => {
+    if (type === "min") {
+      setPriceFrom(price);
+    } else {
+      setPriceTo(price);
+    }
+  };
   return (
     <div className="relative">
       <div
@@ -44,27 +95,72 @@ export function Price() {
       {isVisible && (
         <div
           ref={ref}
-          className="absolute top-10 left-0 bg-white border border-gray-200 p-4 rounded-lg shadow-lg z-10 w-[400px]"
+          className="absolute top-30 left-0 bg-white border border-gray-200 p-4 rounded-lg shadow-lg z-10 w-[400px]"
         >
           <p className="text-[16px] font-medium">ფასის მიხედვით</p>
-          <div className="flex mt-6 gap-[15px] mb-6">
+          <div className="mt-6 ">
             {/* Price Inputs */}
-            <div className="relative w-full">
-              <input
-                type="number"
-                className="w-full rounded-md border border-[#808A93] px-[10px] py-[12px] text-sm pr-8"
-                placeholder="დან"
-              />
-              <Icons.Lari className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#808A93]" />
+            <div className="flex gap-[15px] mb-6">
+              <div className="relative w-full">
+                <input
+                  type="number"
+                  value={priceFrom}
+                  onChange={(e) => setPriceFrom(Number(e.target.value) || "")}
+                  className="w-full rounded-md border border-[#808A93] px-[10px] py-[12px] text-sm pr-8"
+                  placeholder="დან"
+                />
+                <Icons.Lari className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#808A93]" />
+              </div>
+              <div className="relative w-full">
+                <input
+                  type="number"
+                  value={priceTo}
+                  onChange={(e) => setPriceTo(Number(e.target.value) || "")}
+                  className="w-full rounded-md border border-[#808A93] px-[10px] py-[12px] text-sm pr-8"
+                  placeholder="მდე"
+                />
+                <Icons.Lari className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#808A93]" />
+              </div>
             </div>
-            <div className="relative w-full">
-              <input
-                type="number"
-                className="w-full rounded-md border border-[#808A93] px-[10px] py-[12px] text-sm pr-8"
-                placeholder="მდე"
-              />
-              <Icons.Lari className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#808A93]" />
+            {/* Static Prices Mapping */}
+            <div className="flex justify-between">
+              <div className="flex flex-col">
+                <span className="mb-4 font-semibold">მინ. ფასი</span>
+                {staticPrices.map((price, index) => (
+                  <div key={index} className="">
+                    <span
+                      className="flex items-center gap-1 hover:bg-gray-100 p-2 rounded-md"
+                      onClick={() => handleSelectPrice(price.value, "min")}
+                    >
+                      {price.value}
+                      <Icons.Lari />
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-col">
+                <span className="mb-4 font-semibold">მაქს. ფასი</span>
+                {staticPrices.map((price, index) => (
+                  <div key={index} className="">
+                    <span
+                      className="flex items-center gap-1 hover:bg-gray-100 p-2 rounded-md"
+                      onClick={() => handleSelectPrice(price.value, "max")}
+                    >
+                      {price.value}
+                      <Icons.Lari />
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
+          </div>
+          <div className="flex justify-end mt-8">
+            <button
+              className="bg-[#F93B1D] text-white text-[16px] py-[8px] px-[14px] rounded-xl"
+              onClick={handleFilterByPrice}
+            >
+              არჩევა
+            </button>
           </div>
         </div>
       )}

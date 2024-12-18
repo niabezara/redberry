@@ -4,9 +4,11 @@ import { useQuery } from "react-query";
 import { useNavigate } from "react-router";
 import { useRegionStore } from "@/store/regionStore";
 import axios from "@/api/axios";
+import { usePriceStore } from "@/store/priceStore";
 
 function FlatComponent() {
   const { selectedRegions } = useRegionStore();
+  const { priceFrom, priceTo } = usePriceStore();
   const navigate = useNavigate();
 
   // Fetch all flats
@@ -21,11 +23,13 @@ function FlatComponent() {
 
   // Fetch filtered flats based on selected regions
   const { data: filteredFlatsData, error } = useQuery<FlatResponse>(
-    ["flats", selectedRegions],
+    ["flats", selectedRegions, priceFrom, priceTo],
     async () => {
       try {
         const response = await axios.post("/flats/filter", {
           regionIds: selectedRegions.length > 0 ? selectedRegions : null,
+          priceFrom: priceFrom || null,
+          priceTo: priceTo || null,
         });
 
         if (response.status !== 200) {
@@ -35,12 +39,17 @@ function FlatComponent() {
         }
 
         return response.data;
-      } catch (error) {
+      } catch (error: any) {
+        console.error("Error fetching filtered flats:", error);
+        if (error.response) {
+          console.error("Response error:", error.response);
+        }
         throw new Error("Failed to fetch filtered flats");
       }
     },
     {
-      enabled: selectedRegions.length > 0,
+      enabled:
+        selectedRegions.length > 0 || priceFrom || priceTo ? true : false,
     }
   );
 
@@ -48,11 +57,13 @@ function FlatComponent() {
     console.error("Error fetching flats:", error);
   }
   const handleFlatClick = (id: string) => {
-    navigate(`/flat/?id=${id}`);
+    navigate(`/flats/?id=${id}`);
   };
 
   const flatsToDisplay =
-    selectedRegions.length > 0 ? filteredFlatsData?.data : allFlatsData?.data;
+    selectedRegions.length > 0 || priceFrom || priceTo
+      ? filteredFlatsData?.data
+      : allFlatsData?.data;
 
   return (
     <div className="flex flex-wrap gap-5 cursor-pointer">

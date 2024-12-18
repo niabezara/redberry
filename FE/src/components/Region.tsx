@@ -53,24 +53,46 @@ export function Region() {
       ?.filter((region) => selectedRegions.includes(region.id))
       .map((region) => region.name);
 
+    const currentSearchParams = new URLSearchParams(window.location.search);
+    const priceFrom = currentSearchParams.get("priceFrom");
+    const priceTo = currentSearchParams.get("priceTo");
+
     if (!selectedRegionNames?.length) {
-      console.log("No regions selected");
+      const queryParams: Record<string, string> = {};
+      if (priceFrom) queryParams.priceFrom = priceFrom;
+      if (priceTo) queryParams.priceTo = priceTo;
+
+      const queryString = new URLSearchParams(queryParams).toString();
+      navigate({
+        pathname: window.location.pathname,
+        search: `?${queryString}`,
+      });
+      openSection("");
       return;
     }
 
+    // Proceed with filtering regions
     mutation.mutate(selectedRegionNames);
 
+    const queryParams: Record<string, string> = {
+      regions: selectedRegionNames.join(","),
+    };
+
+    if (priceFrom) queryParams.priceFrom = priceFrom;
+    if (priceTo) queryParams.priceTo = priceTo;
+
+    const queryString = new URLSearchParams(queryParams).toString();
     navigate({
       pathname: window.location.pathname,
-      search: `?regions=${selectedRegionNames.join(",")}`,
+      search: `?${queryString}`,
     });
+    openSection("");
   };
 
   return (
     <NavigationMenu>
       <NavigationMenuList>
         <div className="relative">
-          {/* Toggle visibility on h1 click */}
           <data
             className="hover:bg-gray-100 flex items-center gap-1 p-1 rounded-md"
             onClick={handleToggleVisibility}

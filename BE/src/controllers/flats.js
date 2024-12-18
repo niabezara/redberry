@@ -149,27 +149,46 @@ export const deleteFlat = async (req, res) => {
 
 export const filterFlatsByRegions = async (req, res, next) => {
   try {
-    const { regionNames } = req.body;
+    const { regionIds, priceFrom, priceTo } = req.body;
 
-    if (!Array.isArray(regionNames) || regionNames.length === 0) {
-      return res
-        .status(400)
-        .json({ errors: [{ message: "Invalid regionNames" }] });
+    // if (!Array.isArray(regionIds) || regionIds.length === 0) {
+    //   return res
+    //     .status(400)
+    //     .json({ errors: [{ message: "Invalid regionNames" }] });
+    // }
+
+    const priceFilter = {};
+    if (priceFrom || priceTo) {
+      if (priceFrom) {
+        priceFilter.gte = priceFrom; // Price greater than or equal to priceFrom
+      }
+      if (priceTo) {
+        priceFilter.lte = priceTo; // Price less than or equal to priceTo
+      }
     }
 
-    const filteredFlats = await prisma.Flat.findMany({
+    const flats = await prisma.flat.findMany({
       where: {
-        region: {
-          name: { in: regionNames },
-        },
+        ...(regionIds?.length > 0 && {
+          regionId: {
+            in: regionIds,
+          },
+        }),
+        ...(priceFrom &&
+          priceTo && {
+            price: {
+              gte: parseFloat(priceFrom),
+              lte: parseFloat(priceTo),
+            },
+          }),
+        deletedAt: null,
       },
       include: {
         profilePicture: true,
         region: true,
       },
     });
-
-    return res.json({ data: filteredFlats });
+    return res.json({ data: flats });
   } catch (error) {
     console.error("Error filtering flats:", error);
     return res

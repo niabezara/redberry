@@ -5,33 +5,30 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-import {
-  NavigationMenu,
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-  NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu";
 import { Icons } from "./Icons";
 import { useVisibilityStore } from "@/store/visibilityStore";
 import useOnClickOutside from "@/hooks/use-click-outside";
 
-const priceRange: { title: string }[] = [
+const staticSpaces = [
   {
-    title: "10,000",
-  },
-  {
-    title: "20,000",
-  },
-  {
-    title: "30,000",
-  },
-  {
-    title: "40,000",
+    title: "50,000",
+    value: 50000,
   },
   {
     title: "50,000",
+    value: 50000,
+  },
+  {
+    title: "50,000",
+    value: 50000,
+  },
+  {
+    title: "50,000",
+    value: 50000,
+  },
+  {
+    title: "50,000",
+    value: 50000,
   },
 ];
 
@@ -69,24 +66,65 @@ export function Space() {
           className="absolute top-10 left-0 bg-white border border-gray-200 p-4 rounded-lg shadow-lg z-10 w-[400px]"
         >
           <p className="text-[16px] font-medium">ფართობის მიხედვით</p>
-          <div className="flex mt-6 gap-[15px] mb-6">
+          <div className="">
             {/* Price Inputs */}
-            <div className="relative w-full">
-              <input
-                type="number"
-                className="w-full rounded-md border border-[#808A93] px-[10px] py-[12px] text-sm pr-8"
-                placeholder="დან"
-              />
-              <Icons.m2 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#808A93]" />
+            <div className="flex mt-6 gap-[15px] mb-6">
+              <div className="relative w-full">
+                <input
+                  type="number"
+                  className="w-full rounded-md border border-[#808A93] px-[10px] py-[12px] text-sm pr-8"
+                  placeholder="დან"
+                />
+                <Icons.m2 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#808A93]" />
+              </div>
+              <div className="relative w-full">
+                <input
+                  type="number"
+                  className="w-full rounded-md border border-[#808A93] px-[10px] py-[12px] text-sm pr-8"
+                  placeholder="მდე"
+                />
+                <Icons.m2 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#808A93]" />
+              </div>
             </div>
-            <div className="relative w-full">
-              <input
-                type="number"
-                className="w-full rounded-md border border-[#808A93] px-[10px] py-[12px] text-sm pr-8"
-                placeholder="მდე"
-              />
-              <Icons.m2 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#808A93]" />
+            {/* Static  Mapping */}
+            <div className="flex justify-between">
+              <div className="flex flex-col">
+                <span className="mb-4 font-semibold">მინ. მ</span>
+                {staticSpaces.map((space, index) => (
+                  <div key={index} className="">
+                    <span
+                      className="flex items-center gap-1 hover:bg-gray-100 p-2 rounded-md"
+                      // onClick={() => handleSelectPrice(space.value, "min")}
+                    >
+                      {space.value}
+                      <Icons.m2 />
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div className="flex flex-col">
+                <span className="mb-4 font-semibold">მაქს. მ</span>
+                {staticSpaces.map((space, index) => (
+                  <div key={index} className="">
+                    <span
+                      className="flex items-center gap-1 hover:bg-gray-100 p-2 rounded-md"
+                      // onClick={() => handleSelectPrice(price.value, "max")}
+                    >
+                      {space.value}
+                      <Icons.m2 />
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
+          </div>
+          <div className="flex justify-end mt-8">
+            <button
+              className="bg-[#F93B1D] text-white text-[16px] py-[8px] px-[14px] rounded-xl"
+              // onClick={handleFilterByPrice}
+            >
+              არჩევა
+            </button>
           </div>
         </div>
       )}

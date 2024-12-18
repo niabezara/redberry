@@ -15,11 +15,13 @@ function FlatDetails() {
     [`flats-${id}`],
     async () => {
       const { data } = await axios.get(`/flats/${id}`);
+
       return data;
     },
     { enabled: !!id }
   );
 
+  // delete mutation
   const { mutateAsync: deleteFlat } = useMutation({
     mutationFn: async (id: string) => {
       await axios.delete(`/flats/${id}`);
@@ -83,8 +85,8 @@ function FlatDetails() {
               <div className="flex gap-4">
                 <div className="rounded-full w-[72px] h-[72px]">
                   <img
-                    src={flatDetail.agent.photo.path}
-                    alt="agent name"
+                    src={flatDetail?.agent?.photo?.path || "./avatar.avif"}
+                    alt={flatDetail?.agent?.name || "Agent's photo"}
                     className="w-full h-full rounded-full"
                   />
                 </div>
