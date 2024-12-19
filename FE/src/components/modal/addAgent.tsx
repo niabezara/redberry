@@ -25,8 +25,10 @@ const AddAgentModal: React.FC<ModalProps> = ({ onClose }) => {
   const {
     register,
     reset,
+    watch,
     handleSubmit,
     setValue,
+
     formState: { errors },
   } = useForm<IFormInput>({
     mode: "onBlur",
@@ -37,7 +39,7 @@ const AddAgentModal: React.FC<ModalProps> = ({ onClose }) => {
       phoneNumber: "",
     },
   });
-
+  const uploadedPhoto = watch("photo");
   const { getRootProps, getInputProps, acceptedFiles } = useDropzone({
     noDrag: true,
     accept: {
@@ -193,15 +195,32 @@ const AddAgentModal: React.FC<ModalProps> = ({ onClose }) => {
               ატვირთეთ ფოტო
             </label>
             <section className="w-full">
-              <div
-                {...getRootProps({
-                  className:
-                    "dropzone border-2 flex border-dashed border-[#2D3648] h-[120px] p-4 rounded-xl w-full items-center justify-center cursor-pointer",
-                })}
-              >
-                <input {...getInputProps()} />
-                <Icons.plusButton />
-              </div>
+              {uploadedPhoto ? (
+                <div className="relative w-full h-[220px]">
+                  <img
+                    src={URL.createObjectURL(uploadedPhoto as File)}
+                    alt="Uploaded"
+                    className="w-full h-full object-cover rounded-xl"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setValue("photo", undefined)} // Remove the photo
+                    className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full"
+                  >
+                    ✖
+                  </button>
+                </div>
+              ) : (
+                <div
+                  {...getRootProps({
+                    className:
+                      "dropzone border-2 flex border-dashed border-[#2D3648] h-[120px] p-4 rounded-xl w-full items-center justify-center cursor-pointer",
+                  })}
+                >
+                  <input {...getInputProps()} />
+                  <Icons.plusButton />
+                </div>
+              )}
             </section>
           </div>
 

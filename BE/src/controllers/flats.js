@@ -177,6 +177,13 @@ export const filterFlatsByRegions = async (req, res, next) => {
       }
     }
 
+    const bedroomFilter =
+      room === null
+        ? { equals: null }
+        : typeof room === "number"
+        ? { equals: room }
+        : undefined;
+
     const flats = await prisma.flat.findMany({
       where: {
         ...(regionIds?.length > 0 && {
@@ -198,7 +205,7 @@ export const filterFlatsByRegions = async (req, res, next) => {
               lte: To.toString(),
             },
           }),
-        bedrooms: room,
+        ...(req.body.room && { bedrooms: req.body.room }),
         deletedAt: null,
       },
       include: {
